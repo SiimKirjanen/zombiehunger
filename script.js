@@ -23,6 +23,39 @@ status_taust.fillStyle = "white";
 status_taust.font = "bold 30px Arial";
 status_taust.fillText("Loading...",330,250);
 
+var menu_snd = new Audio("Sounds/menu1.ogg");
+
+var gun1 = new Audio("Sounds/gunfire.ogg");
+var gun2 = new Audio("Sounds/gunfire.ogg");
+var gun3 = new Audio("Sounds/gunfire.ogg");
+var gun4 = new Audio("Sounds/gunfire.ogg");
+var gun5 = new Audio("Sounds/gunfire.ogg");
+
+var reloadSound1 = new Audio("Sounds/reload.ogg");
+var reloadSound2 = new Audio("Sounds/reload.ogg");
+
+var music = new Audio("Sounds/music.ogg");
+music.loop = true;
+
+var music2 = new Audio("Sounds/music2.ogg");
+music2.loop = true;
+
+gun1.addEventListener('canplaythrough',loadKontroll,false);
+
+gun2.addEventListener('canplaythrough',loadKontroll,false);
+
+gun3.addEventListener('canplaythrough',loadKontroll,false);
+
+gun4.addEventListener('canplaythrough',loadKontroll,false);
+gun5.addEventListener('canplaythrough',loadKontroll,false);
+
+reloadSound1.addEventListener('canplaythrough',loadKontroll,false);
+reloadSound2.addEventListener('canplaythrough',loadKontroll,false);
+menu_snd.addEventListener('canplaythrough',loadKontroll,false);
+music.addEventListener('canplaythrough',loadKontroll,false);
+
+var touchable = 'createTouch' in document;
+
 var gameWidth = canvas.width;    // mängu laius
 var gameHeight = canvas.height;	 //mängu kõrgus
 
@@ -44,7 +77,7 @@ var abicounter = 1;
 var ise = new Hero(); //classi Hero uus objekt ehk siis kangelane, kes ringi liigub
 var imgSprite = new Image(); //pilt
 imgSprite.src = 'Pildid/sprite.png'; //pildi asukoht
-imgSprite.addEventListener('load',init,false); //pildi kuular. kui laetud siis init funktsioon
+imgSprite.addEventListener('load',loadKontroll,false); //pildi kuular. kui laetud siis init funktsioon
 
 var toimus_asukoha_muutus = false; //
 var hiirekursorX;
@@ -63,7 +96,21 @@ var mitu_paksu = 0;
 var mitu_priest = 0;
 var tekstid = new Array();
 //*********Põhifunktsioonid**********//
+
+var kontrollSumma = 0;
+
+
+function loadKontroll(){
+	kontrollSumma++;
+	if(kontrollSumma == 10){
+		init();
+	}
+}
+
+
 function gameOver(){
+    music.pause();
+	music2.pause();
     info_taust.clearRect(0,0,800,600);
     if(toimus_asukoha_muutus){
 		document.removeEventListener("onmousemove",hiirelohistus,false);
@@ -107,6 +154,7 @@ function kutsuteine(){
 	},50);
 }
 function init(){
+    menu_snd.play();
     //clearStatusCanvas();
 	joonistaMenu();
     taidaVastased(); //taidab vastaste array
@@ -114,6 +162,8 @@ function init(){
 	document.addEventListener('click',mouseClicked,false); //lisab lehele click kuulari
     document.addEventListener('keydown',valitudKeyboard,false); //lisab lehele keydown kuulari, ehk kui valitud hiirega mängimine	
 } //init sisse tuleb hiljem mängu menüü. Hetkel kuular, mis ootab mouse klikki, et tööle panne mouseClicked funktsioon
+
+
 function joonistaMenu(){
 	status_taust.drawImage(imgSprite,0,600,800,500,0,20,800,500);
 }
@@ -156,12 +206,14 @@ function taidaHelp(){
 		mitu_kuuli_saab = 25;
 	}
 	if(wave == 10){
+	    music.pause();
+		music2.play();
 		mitu_kuuli_saab = 35;
 	}
 	if(wave == 14){
 		mitu_kuuli_saab = 40;
 	}
-	if(wave == 14){
+	if(wave == 15){
 		mitu_kuuli_saab = 50;
 	}
 	if(wave == 16){
@@ -186,9 +238,11 @@ function taidaHelp(){
 	}
 }
 function playGame(){
+    menu_snd.pause();
     clearStatusCanvas();
 	drawBg(); //joonistab tagatausta 
 	joonP(); //joonistab väikese põlluotsa
+	music.play();
 	startLoop(); // muudab isPlaying muutuja trueks
 } //joonistatakse tagataust ja kutsutakse välja startLoop funktsioon, lisatakse kuularid
 function hiirelohistus(e){
@@ -465,7 +519,7 @@ Hero.prototype.draw = function(){
 	this.drawAllBullets(); //vaatab koik kuulid l2bi ja need millel on x kordinaat suurem kui 0 neid hakkab joonistama.	
 	this.checkHelp(); //vaatab kas saadi help paketile pihta
 };
-
+var kord = 1;
 Hero.prototype.checkHelp = function(){
 	for(var i = 0; i < help.length;i++){
 	   if(help[i].drawX >= this.drawX &&
@@ -475,6 +529,14 @@ Hero.prototype.checkHelp = function(){
 		    var xkor = help[i].drawX;
 			var ykor = help[i].drawY;
 			var mitu1 = help[i].mituk;
+			if(kord == 1){
+				reloadSound1.play();
+				kord++;
+			}else{
+			   reloadSound2.play();
+			   kord--;
+			}
+			
 		    tekstid[tekstid.length] = new Tekst(xkor,ykor,mitu1);
 			var mitu = help[i].mituk;
 			 
@@ -649,7 +711,27 @@ Bullet.prototype.kustuta = function(){ //lisab kuulile kustutamise märgi
 	this.drawX = -20;
 	this.kustutamisele = true;
 };
+var gunSoundNumber = 1;
 Bullet.prototype.fire= function(startX, startY){
+	if(gunSoundNumber == 1){
+		gun1.play();
+	}
+	if(gunSoundNumber == 2){
+		gun2.play();
+	}
+	if(gunSoundNumber == 3){
+		gun3.play();
+	}
+	if(gunSoundNumber == 4){
+		gun4.play();
+	}
+	if(gunSoundNumber == 5){
+		gun5.play();
+	}
+	gunSoundNumber++;
+	if(gunSoundNumber >5){
+		gunSoundNumber = 1;
+	}
 	this.drawX = startX; 
 	this.drawY = startY;
 	this.kasutuses = true;
@@ -806,12 +888,18 @@ Zombie4.prototype.uuenda = function(self){
 
 
 function mouseClicked(e){
+    alert("Sees");
     document.removeEventListener("click",mouseClicked,false);
 	document.removeEventListener("keydown",valitudKeyboard,false);
-	canvas6.onmousemove = hiirelohistus; //kuulab mousemove eventi canvas 5 on kõige pealmine
-	canvas6.onmousedown = muudaspace2;
-	canvas6.onmouseup = muudaspace;
-	playGame();
+	
+	if(touchable){
+	    alert("Töötab");
+    }else{
+		canvas6.onmousemove = hiirelohistus; //kuulab mousemove eventi canvas 5 on kõige pealmine
+		canvas6.onmousedown = muudaspace2;
+		canvas6.onmouseup = muudaspace;
+		playGame();
+	}
 }
 function valitudKeyboard(e){
 	var keyID = e.keyCode || e.which;
