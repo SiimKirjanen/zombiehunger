@@ -1,10 +1,22 @@
-#taust, #tegelane, #zombid,#pold,#status{
+body {
+	background-color: black;
+}
+#taust, #tegelane, #zombid,#pold,#status,#info,#piirjoon{
 	display: block;
 	margin: 0 auto;
     border: 1px solid black;
 }
-#tegelane,#zombid,#pold,#status{
+#tegelane,#zombid,#pold,#status,#info,#piirjoon{
 	margin-top:-502px; 
+}
+#piirjoon{
+	border: 2px solid orange;
+}
+#vahetuseks{
+	display: block;
+	margin: 0 auto;
+	border: 2px solid black;
+	margin-top:-502px;
 }
 
 

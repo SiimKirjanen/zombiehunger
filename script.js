@@ -13,9 +13,12 @@ var pold_taust = canvas4.getContext('2d'); //siin on põld
 var canvas5 = document.getElementById("status");
 var status_taust = canvas5.getContext('2d');
 
- var kasNaidatud = false;
+var canvas6 = document.getElementById("info");
+var info_taust = canvas6.getContext('2d');
+
+var kasNaidatud = false;
 status_taust.fillStyle = "black";
-status_taust.fillRect(0,0,800,500);
+status_taust.fillRect(0,0,800,550);
 status_taust.fillStyle = "white";
 status_taust.font = "bold 30px Arial";
 status_taust.fillText("Loading...",330,250);
@@ -26,9 +29,7 @@ var gameHeight = canvas.height;	 //mängu kõrgus
 var mitu_kuuli_alles;
 var mitu_kuuli_saab = 8; //palju annab kuuli abi.see hakkab raunides suurenema
 
-var v = document.getElementById("info");
-var kuuli_koht = document.getElementById("kuulid");
-var x = document.getElementById("x");
+var kill = 0;
 
 var isPlaying = false;	//sellega saab m2ngu loopi kinni panna
 var requestAnimFrame =  window.requestAnimationFrame ||
@@ -50,39 +51,34 @@ var hiirekursorX;
 var hiirekursorY; 
 var vastased = new Array(); //siia sisse tulevad zombid
 
-var hiirex = document.getElementById("hiirex");
-var hiirey = document.getElementById("hiirey");
-var sihikx = document.getElementById("sihikx");
-var sihiky = document.getElementById("sihiky");
-var hx = document.getElementById("herox");
-var hy = document.getElementById("heroy");
+
 
 var mitu_help = 3; //mitu help
 var kasvoib = true;
 var help = new Array(); //help arrays on abistavad asjad m2ngus (kuulid ja ehk kunagi mingi elud jne)
-var vaat = document.getElementById("vaade");
 var wave = 1;
 var mitu_zombiet = 5; //mitu zombiet arraysse panna tavalised zombied
 var mitu_kiiret = 0;
 var mitu_paksu = 0;
 var mitu_priest = 0;
-
 var tekstid = new Array();
 //*********Põhifunktsioonid**********//
 function gameOver(){
+    info_taust.clearRect(0,0,800,600);
     if(toimus_asukoha_muutus){
 		document.removeEventListener("onmousemove",hiirelohistus,false);
 		document.removeEventListener("onmousedown",muudaspace,false);
 		document.removeEventListener("onmouseup",muudaspace2,false);
 	}
+	canvas6.setAttribute('id','vahetuseks');
     var alpha = 0;
 	var interval = setInterval(function(){
 		status_taust.fillStyle = "rgba(0, 0, 0," + alpha + ")";
-		status_taust.fillRect(0,0,800,500);
+		status_taust.fillRect(0,0,800,550);
 		status_taust.fillStyle = "rgba(250,0,0," + alpha + ")";
 		//status_taust.strokeStyle = "rgba(255,255,0" +alpha + ")";
 		status_taust.font = "bold 70px Arial";
-		status_taust.fillText("GAME OVER",200,250);
+		status_taust.fillText("GAME OVER",190,280);
 		//status_taust.strokeText("GAME OVER",200,250);
 		alpha += 0.02;
 		if(alpha >= 1){
@@ -90,13 +86,10 @@ function gameOver(){
 			kutsuteine();
 		}
 	},50);
-	
-	setTimeout(function(){
-		document.addEventListener("click",uuesti,false);
-		document.addEventListener("keydown",uuesti,false);
-	},3000);
-		
-	
+		setTimeout(function(){
+			document.addEventListener("click",uuesti,false);
+			document.addEventListener("keydown",uuesti,false);
+		},3000);
 	}
 function uuesti(){
 	window.location.reload();
@@ -106,7 +99,7 @@ function kutsuteine(){
 	var interval2 = setInterval(function(){
 		status_taust.fillStyle = "rgba(250,250,250," + alpha2 + ")";
 		status_taust.font = "bold 30px Arial";
-		status_taust.fillText("TRY AGAIN",320,300);
+		status_taust.fillText("TRY AGAIN?",320,330);
 		alpha2 += 0.04;
 		if(alpha2 >= 1){
 			clearInterval(interval2);
@@ -114,7 +107,7 @@ function kutsuteine(){
 	},50);
 }
 function init(){
-    clearStatusCanvas();
+    //clearStatusCanvas();
 	joonistaMenu();
     taidaVastased(); //taidab vastaste array
 	taidaHelp(); 
@@ -122,7 +115,7 @@ function init(){
     document.addEventListener('keydown',valitudKeyboard,false); //lisab lehele keydown kuulari, ehk kui valitud hiirega mängimine	
 } //init sisse tuleb hiljem mängu menüü. Hetkel kuular, mis ootab mouse klikki, et tööle panne mouseClicked funktsioon
 function joonistaMenu(){
-	tausta_canvas.drawImage(imgSprite,0,600,800,500,0,0,800,500);
+	status_taust.drawImage(imgSprite,0,600,800,500,0,20,800,500);
 }
 function clearStatusCanvas(){
 	status_taust.clearRect(0,0,800,500);
@@ -149,15 +142,9 @@ function taidaVastased(){
 	for(var i = 0; i < mitu_priest;i++){
 		vastased[vastased.length] = new Zombie4();
 	}
-	
-	
-	
-	
-	kasvoib = true;
-	
+	kasvoib = true;	
 } //vastased array täitmine
 function taidaHelp(){
-    
 	var hetkel = help.length;
 	if(wave == 4){
 		mitu_kuuli_saab = 15;
@@ -191,24 +178,22 @@ function taidaHelp(){
 	}
 	if(wave == 24){
 		mitu_kuuli_saab = 110;
-	}
-	
+	}	
 	if(wave == 1){
 		for(var i = hetkel; i < mitu_help+hetkel;i++){
 			help[i] = new Moon(mitu_kuuli_saab);
 		}
 	}
-	
 }
 function playGame(){
-	drawBg(); //joonistab tagatausta (roheline muru)
+    clearStatusCanvas();
+	drawBg(); //joonistab tagatausta 
 	joonP(); //joonistab väikese põlluotsa
 	startLoop(); // muudab isPlaying muutuja trueks
 } //joonistatakse tagataust ja kutsutakse välja startLoop funktsioon, lisatakse kuularid
 function hiirelohistus(e){
-	hiirekursorX = e.pageX - canvas5.offsetLeft;
-	hiirekursorY = e.pageY - canvas5.offsetTop;
-	
+	hiirekursorX = e.pageX - canvas6.offsetLeft;
+	hiirekursorY = e.pageY - canvas6.offsetTop;
 	if(hiirekursorX > ise.drawX + ise.width){
 		ise.vaade = 2;
 		ise.width = 40;
@@ -223,7 +208,6 @@ function hiirelohistus(e){
 		ise.noseY = ise.drawY + 22;
         toimus_asukoha_muutus = true;		
 	}
-	
 	if(hiirekursorY > ise.drawY + ise.height){	
 		ise.vaade = 3;	
 		ise.width = 30;
@@ -231,41 +215,37 @@ function hiirelohistus(e){
 		ise.noseY = ise.drawY + 45;
 		toimus_asukoha_muutus = true;
 	}
-	
 	if(hiirekursorY < ise.drawY){
 		ise.vaade = 1;
 		ise.width = 30;
 		ise.noseX = ise.drawX + 15;
 		ise.noseY = ise.drawY - 10;
 		toimus_asukoha_muutus = true;
-	}
-	sihikx.value = ise.noseX;
-	sihiky.value = ise.noseY;
-	
-	/*
-	if(mouseX > ise.drawX ){
-		ise.drawX++;
-	}
-	if(mouseX < ise.drawX ){
-		ise.drawX--;
-	}
-	if(mouseY > ise.drawY){
-		ise.drawY++;
-	}
-	if(mouseY < ise.drawY){
-		ise.drawY--;
-	}
-	*/
-    
-	
+	}	
 }
 function drawBg(){
+    canvas6.setAttribute('id','piirjoon');
 	var srcX = 0; //kus kohal spritel x kordinaat
 	var srcY = 0; //kus kohal spritel y kordinaat
 	var drawX = 800; //laius spritel
 	var drawY = 500;//korgus spritel
 	tausta_canvas.drawImage(imgSprite,srcX,srcY,drawX,drawY,srcX,srcY,drawX,drawY); //pildi asukoht spritel(x ja y, pikkus ja kordus) ja 
 	//joonistamise asukoht(x a y, pikkus ja korgus)
+	info_taust.fillRect(0,500,800,100);
+	info_taust.beginPath();
+	info_taust.moveTo(0,500);
+	info_taust.lineTo(800,500);
+	info_taust.lineWidth = 2;
+	info_taust.strokeStyle = "rgb(255,165,0)";
+	info_taust.stroke();
+	info_taust.drawImage(imgSprite,6,1139,70,35,15,530,70,35); //joonistab kuulikarbi alla
+	info_taust.drawImage(imgSprite,112,1130,38,46,230,525,38,46); //joonistab kollase noole
+	info_taust.drawImage(imgSprite,221,1130,44,46,390,525,44,46); //joonistab zombies left
+	info_taust.drawImage(imgSprite,174,1130,37,46,600,525,37,46); //joonistab kill count
+	
+	
+	 //info_taust.drawImage(imgSprite,6,1139,35,70,6,510,35,70);
+	//info_taust.drawImage(imgSprite,173,520,35,70,6,510,35,70);
 }
 function joonP(){
     var posX = 0;
@@ -278,18 +258,12 @@ function joonP(){
 			posY +=30;
 		}
 	}
-	
 }
 function startLoop(){
     isPlaying = true; 
     loop(); //m2ng l2heb k2ima
-	
 }
-
 function loop(){
-   
-    
-    
     if(isPlaying){
 	  if(kasNaidatud == false){
 		leveliNaitamine();
@@ -299,13 +273,38 @@ function loop(){
 	  }
       ise.draw(); //joonistab farmeri ja kuulid kui on
 	  kuuliPluss();
-	  kuuli_koht.value = mitu_kuuli_alles;
-	  v.value = wave;
+	  drawMenuLisad();
 	  drawAllHelp(); //joonistab abi asjad
 	  drawAllZombies(); //joonistab zombid
 	  kasVoibCheck(); //vaatab kas koik zombied on kutud 
       requestAnimFrame(loop); //kutsub uuesti loop funktsiooni
     }	
+}
+function drawMenuLisad(){
+    info_taust.fillStyle = "black";
+    info_taust.fillRect(90,510,80,80);
+	info_taust.fillStyle = "rgb(255,255,255)";
+	info_taust.font = "bold 30px Arial";
+	info_taust.fillText(mitu_kuuli_alles,100,558);
+	info_taust.fillStyle = "black";
+    info_taust.fillRect(282,510,80,80);
+	info_taust.fillStyle = "rgb(255,255,255)";
+	info_taust.font = "bold 30px Arial";
+	info_taust.fillStyle = "white";
+	info_taust.fillText(wave,282,558);
+	var mitu_left = vastased.length;
+	info_taust.fillStyle = "black";
+    info_taust.fillRect(444,510,80,80);
+	info_taust.fillStyle = "rgb(255,255,255)";
+	info_taust.font = "bold 30px Arial";
+	info_taust.fillText(mitu_left,450,558);
+	
+	info_taust.fillStyle = "black";
+    info_taust.fillRect(656,510,120,80);
+	info_taust.fillStyle = "rgb(255,255,255)";
+	info_taust.font = "bold 30px Arial";
+	info_taust.fillText(kill,656,558);
+	
 }
 function kuuliPluss(){
 	for(var i = 0; i < tekstid.length;i++){
@@ -317,18 +316,15 @@ function kuuliPluss(){
 	}
 }
 function leveliNaitamine(){
- 
         kasNaidatud = true; 
-        var alpha = 0;
-		
+        var alpha = 0;	
 	    var interval = setInterval(function(){
 		status_taust.clearRect(300,150,300,200);
 		status_taust.fillStyle = "rgba(200,0,0," + alpha + ")";
 	    status_taust.strokeStyle = "rgba(0,0,0," + alpha + ")";
 		status_taust.font = "bold 60px Arial";
-		status_taust.fillText("Wave "+wave,320,250);
-		status_taust.strokeText("Wave "+wave,320,250);
-		
+		status_taust.fillText("Wave "+wave,305,260);
+		status_taust.strokeText("Wave "+wave,305,260);	
 		alpha += 0.02;
 		if(alpha >= 1){
 			clearInterval(interval);
@@ -343,44 +339,32 @@ function kustutastats(){
 				status_taust.fillStyle = "rgba(200,0,0," + alpha2 + ")";
 				status_taust.strokeStyle = "rgba(0,0,0," + alpha2 + ")";
 				status_taust.font = "bold 60px Arial";
-				status_taust.fillText("Wave "+wave,320,250);
-				status_taust.strokeText("Wave "+wave,320,250);
-				alpha2 -= 0.02;
-				
+				status_taust.fillText("Wave "+wave,305,260);
+				status_taust.strokeText("Wave "+wave,305,260);
+				alpha2 -= 0.02;	
 					if(alpha2 <= 0){
 						clearInterval(interval2);
 						status_taust.clearRect(300,200,300,200);
-					}
-				
-            },50);
-			
+					}	
+            },50);			
 }
 function positsioonile(){
-    hiirex.value = hiirekursorX;
-	hiirey.value = hiirekursorY;
-	vaat.value = ise.vaade;
 		if(hiirekursorX > ise.drawX + ise.width){
                 if(ise.drawX < gameWidth - ise.width){
 					ise.drawX+=2;
-				}		
-				
-		}
-		
+				}				
+		}	
 		if(hiirekursorX < ise.drawX){  
 			ise.drawX-=2;
-		}
-		
+		}	
 		if(hiirekursorY > ise.drawY + ise.height){ 
 			if(ise.drawY + ise.height <= gameHeight){
 				ise.drawY+=2;
-			}
-			
+			}	
 		}
 		if(hiirekursorY < ise.drawY){  
 			ise.drawY-=2;
 		}
-		hx.value = ise.drawX;
-		hy.value = ise.drawY;
 }
 function kasVoibCheck(){
 	if(vastased.length == 0 && kasvoib == true){  //kasvpib muutuja on vajalik, et loop() seda pidevalt ei kutsuks
@@ -425,12 +409,6 @@ function drawAllHelp(){
 function stopLoop(){
     isPlaying = false;	
 }
-/*
-function clearAbi(){
-	abi_taust.clearRect(0,0,800,500);
-}
-*/
-
 //*********Põhifunktsioonide lõpp*********//
 
 //********Hero funktsioonid**********//
@@ -507,26 +485,7 @@ Hero.prototype.checkHelp = function(){
 			}
 			mitu_kuuli_alles += help[i].mituk;		
 			help.splice(i,1); //võtab abipaketi 2ra
-			var alpha = 0;
-			
-			/*
-				var interval = setInterval(function(){
-			    
-				status_taust.fillStyle = "rgba(0,0,0," + alpha + ")";
-				status_taust.font = "15px Arial";
-				
-				//status_taust.fillText("+"+mitu1,xkor,ykor);
-				status_taust.fillText("+"+mitu1,xkor,ykor-10);
-				alpha += 0.04;
-				if(alpha >= 1){
-					clearInterval(interval);
-					
-					tausta_canvas.clearRect(xkor,ykor-22,20,15);
-				}
-				},50);
-			*/
-			
-			
+			var alpha = 0;		
 		}
 	}
 };
@@ -554,32 +513,16 @@ Tekst.prototype.draw = function(){
 		  this.kustutamisele = true;
 	   }
 	}
-	
 	if(this.alpha >= 1){
 		this.fadein = false;
 	}
 	
 }
-function kustutaPlussid(x,y,m){
-    var a = x;
-	var b = y;
-    
+function kustutaPlussid(x,y,m){ 
 	tausta_canvas.clearRect(x,y-15,20,20);
 	hiirex.value = x;
 	hiirey.value = y;
 	var alpha1 = 1;
-	/*
-	var interval = setInterval(function(){
-		status_taust.clearRect(x,y,30,30);
-		status_taust.fillStyle = "rgba(250,250,250," + alpha1 + ")";
-		status_taust.font = "bold 15px Arial";
-		status_taust.fillText("+",x,y);
-		alpha1 -= 0.04;
-			if(alpha2 <= 0){
-				clearInterval(interval);	
-			}
-	},50);
-	*/
 }
 Hero.prototype.updateCoors = function(){
     this.noseX = this.drawX + 30; //kust kohast kuul v2lja saata
@@ -695,11 +638,11 @@ Bullet.prototype.kasPihtas = function(){
 			     vastased[i].elud -= this.damage; //v6tab zombilt elusid
 				 this.kustutamisele = true; //kustutab kuuli
 				 if(vastased[i].elud <=0){ //kui zombil on elus <=0
+				    kill++;
 					vastased.splice(i,1); //kustutab selel zombie vastaste arrayst
 				 }			 
 			}
 	}
-	
 };
 
 Bullet.prototype.kustuta = function(){ //lisab kuulile kustutamise märgi
@@ -726,7 +669,6 @@ function Moon(mitu_kuuli_annab){
 	if(this.drawY >= gameHeight - this.height){
 		this.drawY -= this.height;
 	}
-	
 	this.mituk = mitu_kuuli_annab;
 }
 Moon.prototype.draw = function(){
@@ -755,7 +697,8 @@ Zombie.prototype.draw = function(){
 	zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
 	if(this.drawX <=30){
 		isPlaying = false;
-		gameOver();
+		setTimeout("gameOver()",2000);
+		//gameOver();
 	}
 };
 function Zombie2(){ //kiire zombie
@@ -777,7 +720,8 @@ Zombie2.prototype.draw = function(){
 	zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
 	if(this.drawX <=30){
 		isPlaying = false;
-		gameOver();
+		setTimeout("gameOver()",2000);
+		//gameOver();
 	}
 };
 function Zombie3(){ //paks zombie
@@ -800,6 +744,7 @@ Zombie3.prototype.draw = function(){
 	zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
 	if(this.drawX <=30){
 		isPlaying = false;
+		setTimeout("gameOver()",2000);
 	}
 };
 function Zombie4(){ //priest zombie
@@ -841,10 +786,10 @@ Zombie4.prototype.draw = function(){
 		}
 		
 	}
-	
 	if(this.drawX <=30){
 		isPlaying = false;
-		gameOver();
+		//gameOver();
+		setTimeout("gameOver()",2000);
 	}
 };
 Zombie4.prototype.uuenda = function(self){
@@ -852,14 +797,7 @@ Zombie4.prototype.uuenda = function(self){
     self.reborn = false;
     self.kasHaavatav = true;
 };
-/*
-function uuenda(zom){
-  alert(zom);
-  zom.kontroll = true;
-  zom.reborn = false;
-  zom.kasHaavatav = true;
-}
-*/
+
 
 
 //*****Zombie funktsioonide lopp******//
@@ -870,11 +808,9 @@ function uuenda(zom){
 function mouseClicked(e){
     document.removeEventListener("click",mouseClicked,false);
 	document.removeEventListener("keydown",valitudKeyboard,false);
-	canvas5.onmousemove = hiirelohistus; //kuulab mousemove eventi canvas 5 on kõige pealmine
-	canvas5.onmousedown = muudaspace2;
-	canvas5.onmouseup = muudaspace;
-		
-	
+	canvas6.onmousemove = hiirelohistus; //kuulab mousemove eventi canvas 5 on kõige pealmine
+	canvas6.onmousedown = muudaspace2;
+	canvas6.onmouseup = muudaspace;
 	playGame();
 }
 function valitudKeyboard(e){
@@ -884,11 +820,8 @@ function valitudKeyboard(e){
 		document.removeEventListener("keydown",valitudKeyboard,false);
 		document.addEventListener('keydown',checkKeyDown,false); //lisab keydown 
 		document.addEventListener('keyup',checkKeyUp,false);//lisab keyup kuularid
-	
-	playGame();
-	}
-	
-	
+		playGame();
+	}	
 }
 function muudaspace(e){
 	ise.isSpacebar = false;
@@ -898,9 +831,6 @@ function muudaspace2(e){
 	ise.isSpacebar = true;
 	e.preventDefault();
 }
-
-
-
 function checkKeyDown(e){
   
   var keyID = e.keyCode || e.which; //(e.keyCode) ? e.keyCode : e.which
@@ -922,7 +852,6 @@ function checkKeyDown(e){
   if(keyID === 37 || keyID === 65){ // 38 means left arrow and 87 means a key
     ise.vaade = 4;
     ise.isLeftKey = true;
-	
 	e.preventDefault();
   }
   if(keyID === 32){ // 32 space
@@ -931,7 +860,6 @@ function checkKeyDown(e){
   }
 }
 function checkKeyUp(e){
- 
   var keyID = e.keyCode || e.which;
   if(keyID === 38 || keyID === 87){ // 38 means upp arrow and 87 means w key
 	ise.isUpKey = false;
