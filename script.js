@@ -164,7 +164,7 @@ function assetsLoaded(){
 }
 
 function assetsLoadedClickHandler() {
-	document.removeEventListener("click", assetsLoadedClickHandler,false);
+	document.removeEventListener("keydown", assetsLoadedClickHandler,false);
 	init();
 }
 
