@@ -1,0 +1,12 @@
+#taust, #tegelane, #zombid{
+	display: block;
+	margin: 0 auto;
+    border: 1px solid black;
+}
+#tegelane,#zombid{
+	margin-top:-502px; 
+}
+
+
+
+
