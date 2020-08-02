@@ -60,7 +60,7 @@ var gameWidth = canvas.width;    // mängu laius
 var gameHeight = canvas.height;	 //mängu kõrgus
 
 var mitu_kuuli_alles;
-var mitu_kuuli_saab = 8; //palju annab kuuli abi.see hakkab raunides suurenema
+var mitu_kuuli_saab = 8; //palju annab kuuli abi.see hakkab raunides suurenema                   KUULIDE ARV ESIALKSELT!!!
 
 var kill = 0;
 
@@ -98,6 +98,7 @@ var mitu_soldier = 0;
 var mitu_behemoth = 0;
 var mitu_orc = 0;
 var mitu_bossi = 0;
+var mitu_death = 0;
 var tekstid = new Array();
 //*********Põhifunktsioonid**********//
 
@@ -175,6 +176,9 @@ function clearStatusCanvas(){
 	status_taust.clearRect(0,0,800,500);
 }
 function taidaVastased(){
+	if(wave%2 == 0){
+		mitu_zombiet++;
+	}
     if(wave%3 == 0){
 		mitu_kiiret++;
 	}
@@ -193,6 +197,9 @@ function taidaVastased(){
 	if(wave%8 == 0){
 		mitu_orc++;
 	}	
+	if(wave%11 == 0){
+		mitu_death++;
+	}
 	if(wave%10 == 0){
 		mitu_bossi=1;
 	}
@@ -228,24 +235,27 @@ function taidaVastased(){
 	for(var i = 0; i < mitu_orc;i++){
 		vastased[vastased.length] = new Zombie8();	
 	}
+	for(var i = 0; i < mitu_death;i++){
+		vastased[vastased.length] = new Zombie9();	
+	}
 	kasvoib = true;	
 } //vastased array täitmine
 function taidaHelp(){
 	var hetkel = help.length;
 	if(wave == 4){
-		mitu_kuuli_saab = 10;
+		mitu_kuuli_saab = 12;
 	}
 	if(wave == 5){
-		mitu_kuuli_saab = 15;
+		mitu_kuuli_saab = 18;
 	}	
 	if(wave == 6){
 	   mitu_kuuli_saab = 25;
 	}
 	if(wave == 7){
-	   mitu_kuuli_saab = 30;
+	   mitu_kuuli_saab = 35;
 	}   
 	if(wave == 8){
-		mitu_kuuli_saab = 40;
+		mitu_kuuli_saab = 45;
 	}
 	if(wave == 10){
 	
@@ -254,36 +264,34 @@ function taidaHelp(){
 	
 	if(wave == 11){
 	
-		mitu_kuuli_saab = 50;
+		mitu_kuuli_saab = 58;
 	}	
 	if(wave == 12){
 	
-		mitu_kuuli_saab = 60;	
+		mitu_kuuli_saab = 75;	
 	}	
 	if(wave == 14){
-		mitu_kuuli_saab = 80;
+		mitu_kuuli_saab = 90;
 	}
 	if(wave == 15){
-		mitu_kuuli_saab = 100;
+		mitu_kuuli_saab = 115;
 	}
 	if(wave == 16){
-		mitu_kuuli_saab = 130;
-	}
-	if(wave == 18){
 		mitu_kuuli_saab = 160;
 	}
-	if(wave == 20){
+	if(wave == 18){
 		mitu_kuuli_saab = 200;
 	}
+	if(wave == 20){
+		mitu_kuuli_saab = 350;
+	}
 	if(wave == 22){
-		mitu_kuuli_saab = 250;
+		mitu_kuuli_saab = 500;
 	}
 	if(wave == 24){
-		mitu_kuuli_saab = 400;
-	}
-	if(wave == 28){
 		mitu_kuuli_saab = 900;
 	}
+	
 	if(wave == 1){
 		for(var i = hetkel; i < mitu_help+hetkel;i++){
 			help[i] = new Moon(mitu_kuuli_saab);
@@ -540,7 +548,7 @@ function Hero(){
 	this.srcY = 518;
 	this.width = 30;
 	this.height = 50;
-	this.speed = 2;
+	this.speed = 2;  //jooksmis kiirus
 	this.drawX = 200;
 	this.drawY = 200;
 	this.leftX = this.drawX; 
@@ -1020,7 +1028,7 @@ function Zombie6(){ //zombie soldier
 		this.drawY -=60;
 		
 		}
-	this.srcX = 562;	
+	this.srcX = 560;	
 	this.srcY = 518;
 	this.width = 38;
 	this.height = 70;
@@ -1043,7 +1051,7 @@ Zombie6.prototype.draw = function(){
 		
 		zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
 	}else{
-		zombid_taust.drawImage(imgSprite,610,517,50,66,this.drawX,this.drawY ,50,66);
+		zombid_taust.drawImage(imgSprite,610,517,35,70,this.drawX , this.drawY ,35,70);
 		this.kasHaavatav = true;
 		if(this.kasSees == true){
 		   
@@ -1076,10 +1084,8 @@ function Zombie7(){ //behemoth zombie
 	this.srcY = 514;
 	this.width = 85;
 	this.height = 75;
-	this.speed = 0.37;
-	this.speed1 = 0.23;
-	this.speed2 = 0.2;
-	this.elud = 150;
+	this.speed = 0.4;
+	this.elud = 160;
 	this.kasHaavatav = true;
 	this.reborn = false;
 	this.kasSees = false;
@@ -1087,14 +1093,14 @@ function Zombie7(){ //behemoth zombie
 }
 Zombie7.prototype.draw = function(){
     
-	if(this.elud <=100 ){
+	if(this.elud <=100 && this.kontroll == false){
 		
-		this.drawX -= this.speed1;
+		this.speed = 0.3;
 	}
-	if(this.elud <=50 ){
+if(this.elud <=60 && this.kontroll == false){
 		
-		this.drawX -= this.speed2;
-	}
+		this.speed = 0.2;
+	}	
 	if(this.reborn == false){
 		this.drawX -= this.speed;
 		
@@ -1171,7 +1177,60 @@ Zombie8.prototype.uuenda = function(self){
 	
 };	
 
+function Zombie9(){ //death zombie
+    this.drawX = Math.floor(Math.random()*400+800);
+	this.drawY = Math.floor(Math.random()*500);
+	if(this.drawY >440){
+		this.drawY -=60;
+	}
+	this.srcX = 576;
+	this.srcY = 1135;
+	this.width = 71;
+	this.height = 65;
+	this.speed = 0.42;
+	this.elud = 240;
+	this.kasHaavatav = true;
+	this.reborn = false;
+	this.kasSees = false;
+	this.kontroll = false;
+}
+Zombie9.prototype.draw = function(){
+    
+	if(this.elud <=105 && this.kontroll == false){
+		this.reborn = true;
+		this.speed = 0.2;
+	}
 	
+	if(this.reborn == false){
+		this.drawX -= this.speed;
+		zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
+	}else{
+		zombid_taust.drawImage(imgSprite,664,1163,32,42,this.drawX+10,this.drawY+26,30,40);
+		this.kasHaavatav = false;
+		if(this.kasSees == false){
+		    var kutsumine = this.uuenda;
+			var self = this;
+			this.kasSees = true;
+			//setTimeout(kutsumine,6000,self);	//exploreri peal ei töödanud
+			  setTimeout(function(){
+				kutsumine(self);
+			  },6000);	
+		}
+		
+	}
+
+	if(this.drawX <=30){
+		isPlaying = false;
+		//gameOver();
+		setTimeout("gameOver()",2000);
+	}
+};
+Zombie9.prototype.uuenda = function(self){
+	self.kontroll = true;
+    self.reborn = false;
+    self.kasHaavatav = true;
+};	
+
 //*****Zombie funktsioonide lopp******//
 
 //*********Event funktsioonid**********//
