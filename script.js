@@ -7,21 +7,26 @@ var tegelase_canvas = canvas2.getContext('2d');		//vaja tegelease canvase muutmi
 var canvas3 = document.getElementById("zombid");
 var zombid_taust= canvas3.getContext('2d');		//vaja zombide tausta muutmiseks (zombied liiguvad siin)
 
-//var canvas4 = document.getElementById("abi");
-//var abi_taust = canvas4.getContext('2d'); //siin on abi asjad. lisakuulid jne...
+var canvas4 = document.getElementById("pold");
+var pold_taust = canvas4.getContext('2d'); //siin on pıld
 
 var canvas5 = document.getElementById("status");
 var status_taust = canvas5.getContext('2d');
 
 status_taust.fillStyle = "black";
-status_taust.font = "bold 16px Arial";
-status_taust.fillText("Loading...",300,300);
+status_taust.fillRect(0,0,800,500);
+status_taust.fillStyle = "white";
+status_taust.font = "bold 30px Arial";
+status_taust.fillText("Loading...",330,250);
 
 var gameWidth = canvas.width;    // m‰ngu laius
 var gameHeight = canvas.height;	 //m‰ngu kırgus
 
+var mitu_kuuli_alles;
+
 
 var v = document.getElementById("info");
+var kuuli_koht = document.getElementById("kuulid");
 
 var isPlaying = false;	//sellega saab m2ngu loopi kinni panna
 var requestAnimFrame =  window.requestAnimationFrame ||
@@ -32,20 +37,29 @@ var requestAnimFrame =  window.requestAnimationFrame ||
                         function(callback) {
                             window.setTimeout(callback, 1000 / 60);
                         }; 
-
+var abicounter = 1;
 var ise = new Hero(); //classi Hero uus objekt ehk siis kangelane, kes ringi liigub
 var imgSprite = new Image(); //pilt
 imgSprite.src = 'Pildid/sprite.png'; //pildi asukoht
 imgSprite.addEventListener('load',init,false); //pildi kuular. kui laetud siis init funktsioon
 
 var vastased = new Array(); //siia sisse tulevad zombid
-var mitu_zombiet = 5; //mitu zombiet arraysse panna
 
-var help = new Array(new Moon()); //help arrays on abistavad asjad m2ngus (kuulid ja ehk kunagi mingi elud jne)
+var mitu_help = 3;
+var kasvoib = true;
+var help = new Array(); //help arrays on abistavad asjad m2ngus (kuulid ja ehk kunagi mingi elud jne)
+
+var wave = 1;
+var mitu_zombiet = 5; //mitu zombiet arraysse panna tavalised zombied
+var mitu_kiiret = 0;
+var mitu_paksu = 0;
+var mitu_priest = 0;
+
 //*********Pıhifunktsioonid**********//
 
 function init(){
     taidaVastased(); //taidab vastaste array
+	taidaHelp(); 
 	document.addEventListener('click',mouseClicked,false); //lisab lehele click kuulari
 	clearStatusCanvas();
 	 
@@ -54,21 +68,44 @@ function clearStatusCanvas(){
 	status_taust.clearRect(0,0,800,500);
 }
 function taidaVastased(){
-    /*
-	for(var i = 0; i < mitu_zombiet;i++){
-		vastased[i] = new Zombie2();
+    if(wave%3 == 0){
+		mitu_kiiret++;
 	}
-	*/
-	vastased[0] = new Zombie();
-	vastased[1] = new Zombie();
-	vastased[2] = new Zombie2();
-	vastased[3] = new Zombie2();
-	vastased[4] = new Zombie3();
-	vastased[5] = new Zombie3();
+	if(wave%4 == 0){
+		mitu_paksu++;
+	}
+	if(wave%5 == 0){
+		mitu_priest++;
+	}
+	for(var i = 0; i < mitu_zombiet;i++){
+		vastased[i] = new Zombie();
+	}
+	for(var i = 0; i < mitu_kiiret;i++){
+		vastased[vastased.length] = new Zombie2();
+	}
+	for(var i = 0; i < mitu_paksu;i++){
+		vastased[vastased.length] = new Zombie3();
+	}
+	for(var i = 0; i < mitu_priest;i++){
+		vastased[vastased.length] = new Zombie4();
+	}
+	
+	
+	
+	
+	kasvoib = true;
+	
 } //vastased array t‰itmine
-
+function taidaHelp(){
+	var hetkel = help.length;
+	
+	for(var i = hetkel; i < mitu_help+hetkel;i++){
+		help[i] = new Moon();
+	}
+}
 function playGame(){
 	drawBg(); //joonistab tagatausta (roheline muru)
+	joonP(); //joonistab v‰ikese pılluotsa
 	startLoop(); // muudab isPlaying muutuja trueks
 	document.addEventListener('keydown',checkKeyDown,false); //lisab keydown 
 	document.addEventListener('keyup',checkKeyUp,false);//lisab keyup kuularid
@@ -82,19 +119,50 @@ function drawBg(){
 	tausta_canvas.drawImage(imgSprite,srcX,srcY,drawX,drawY,srcX,srcY,drawX,drawY); //pildi asukoht spritel(x ja y, pikkus ja kordus) ja 
 	//joonistamise asukoht(x a y, pikkus ja korgus)
 }
+function joonP(){
+    var posX = 0;
+	var posY = 0;
+    for(var i = 0; i < 34; i++){
+		pold_taust.drawImage(imgSprite,432,545,27,27,posX,posY,27,27);
+		posX += 20;
+		if(posX >=30){
+			posX = 0;
+			posY +=30;
+		}
+	}
+	
+}
 function startLoop(){
     isPlaying = true; 
     loop(); //m2ng l2heb k2ima
 	
 }
+
 function loop(){
     if(isPlaying){
       ise.draw(); //joonistab farmeri ja kuulid kui on
+	  kuuli_koht.value = mitu_kuuli_alles;
+	  v.value = wave;
 	  drawAllHelp(); //joonistab abi asjad
 	  drawAllZombies(); //joonistab zombid
+	  kasVoibCheck(); //vaatab kas koik zombied on kutud 
       requestAnimFrame(loop); //kutsub uuesti loop funktsiooni
     }	
-}//pıhi funktsioon, mis joonistab kangelast
+}
+function kasVoibCheck(){
+	if(vastased.length == 0 && kasvoib == true){  //kasvpib muutuja on vajalik, et loop() seda pidevalt ei kutsuks
+		kasvoib = false; //et enam loop() siia ei p‰‰seks
+		mitu_zombiet++;
+		wave++;
+		taidaHelp();
+		setTimeout("taidaVastased(mitu_zombiet)",5000);
+	}
+}
+function levelCheck(){  
+	if(vastased.length == 0){
+		taidaVastased(10);
+	}
+}
 function drawAllZombies(){
 	clearZombies(); //kustutab zombid_tausta
 	for(var i = 0;i<vastased.length;i++){
@@ -146,9 +214,10 @@ function Hero(){
 	this.isShooting = false;
 	this.bullets = [];
 	this.currentBullet = 0;
-	for(var i = 0; i < 20; i++){
+	for(var i = 0; i < 100; i++){
 		this.bullets[this.bullets.length] = new Bullet(this);	
 	}
+	mitu_kuuli_alles = this.bullets.length;
 } //hero class
 
 Hero.prototype.draw = function(){
@@ -183,7 +252,13 @@ Hero.prototype.checkHelp = function(){
 		  help[i].drawY <= this.drawY + this.height){
 		    var a = document.getElementById("info");
 			//a.value = "Pihtsa";
-			ise.bullets.push(new Bullet()); //lisab kuuli
+			var mitu = 25;
+			while(mitu >0){
+				ise.bullets.push(new Bullet()); //lisab kuuli
+				mitu--;
+			}
+			mitu_kuuli_alles +=25;
+			
 			help.splice(i,1); //vıtab abipaketi 2ra
 		}
 	}
@@ -225,6 +300,7 @@ Hero.prototype.checkShooting = function(){
 		this.isShooting = true;
 		for(var i =0; i <this.bullets.length;i++){	
 			if(this.bullets[i].kasutuses === false){
+			   mitu_kuuli_alles--;
 			   this.bullets[i].suund = this.vaade; //m22rab kuuli suuna kuhu lendab
 			   if(this.bullets[i].suund == 1){ //suund ylesse
 				 this.noseX = this.drawX + 15;
@@ -297,7 +373,7 @@ Bullet.prototype.kasPihtas = function(){
 			if(this.drawX >= vastased[i].drawX && 
 			   this.drawX <=vastased[i].drawX + vastased[i].width &&
 			   this.drawY >=vastased[i].drawY &&
-			   this.drawY <=vastased[i].drawY + vastased[i].height){
+			   this.drawY <=vastased[i].drawY + vastased[i].height && vastased[i].kasHaavatav == true){
 			     vastased[i].elud -= this.damage; //v6tab zombilt elusid
 				 this.kustutamisele = true; //kustutab kuuli
 				 if(vastased[i].elud <=0){ //kui zombil on elus <=0
@@ -325,7 +401,7 @@ function Moon(){
     //var randomnumber=Math.floor(Math.random()*11)
 	this.srcX = 24;
 	this.srcY = 582;
-	this.drawX = Math.floor(Math.random()*800);
+	this.drawX = Math.floor(Math.random()*600);
 	this.drawY = Math.floor(Math.random()*500);
 	this.width = 22;
 	this.height = 10;
@@ -337,49 +413,127 @@ Moon.prototype.draw = function(){
 
 //*****end of reload funktsioonid*****//
 //*****Zombie funktsioonid*******//
-function Zombie(){
+function Zombie(){ //tavaline zombie
     this.drawX = Math.floor(Math.random()*300+800);
 	this.drawY = Math.floor(Math.random()*500);
+	if(this.drawY >440){
+		this.drawY -=60;
+	}
 	this.srcX = 295;
 	this.srcY = 518;
 	this.width = 40;
 	this.height = 60;
 	this.speed = 0.5;
-	this.elud = 20;
+	this.elud = 30;
+	this.kasHaavatav = true;
 }
 Zombie.prototype.draw = function(){
 	this.drawX -= this.speed;
 	zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
+	if(this.drawX <=30){
+		isPlaying = false;
+	}
 };
-function Zombie2(){
+function Zombie2(){ //kiire zombie
 	this.drawX = Math.floor(Math.random()*300+800);
 	this.drawY = Math.floor(Math.random()*500);
+	if(this.drawY >440){
+		this.drawY -=60;
+	}
 	this.srcX = 237;
 	this.srcY = 518;
 	this.width = 50;
 	this.height = 60;
-	this.speed = 0.8;
+	this.speed = 0.7;
 	this.elud = 20;
+	this.kasHaavatav = true;
 }
 Zombie2.prototype.draw = function(){
 	this.drawX -= this.speed;
 	zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
+	if(this.drawX <=30){
+		isPlaying = false;
+	}
 };
-function Zombie3(){
+function Zombie3(){ //paks zombie
+
 	this.drawX = Math.floor(Math.random()*300+800);
 	this.drawY = Math.floor(Math.random()*500);
+	if(this.drawY >440){
+		this.drawY -=70;
+	}
 	this.srcX = 171;
 	this.srcY = 518;
 	this.width = 50;
 	this.height = 80;
 	this.speed = 0.4;
-	this.elud = 60;
+	this.elud = 80;
+	this.kasHaavatav = true;
 }
 Zombie3.prototype.draw = function(){
 	this.drawX -= this.speed;
 	zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
+	if(this.drawX <=30){
+		isPlaying = false;
+	}
 };
-
+function Zombie4(){ //priest zombie
+    this.drawX = Math.floor(Math.random()*300+800);
+	this.drawY = Math.floor(Math.random()*500);
+	if(this.drawY >440){
+		this.drawY -=60;
+	}
+	this.srcX = 460;
+	this.srcY = 524;
+	this.width = 38;
+	this.height = 60;
+	this.speed = 0.5;
+	this.elud = 100;
+	this.kasHaavatav = true;
+	this.reborn = false;
+	this.kasSees = false;
+	this.kontroll = false;
+}
+Zombie4.prototype.draw = function(){
+    
+	if(this.elud <=50 && this.kontroll == false){
+		this.reborn = true;
+	}
+	if(this.reborn == false){
+		this.drawX -= this.speed;
+		zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
+	}else{
+		zombid_taust.drawImage(imgSprite,518,528,26,40,this.drawX,this.drawY+15,26,40);
+		this.kasHaavatav = false;
+		if(this.kasSees == false){
+		    var kutsumine = this.uuenda;
+			var self = this;
+			this.kasSees = true;
+			//setTimeout(kutsumine,6000,self);	//exploreri peal ei tˆˆdanud
+			  setTimeout(function(){
+				kutsumine(self);
+			  },6000);	
+		}
+		
+	}
+	
+	if(this.drawX <=30){
+		isPlaying = false;
+	}
+};
+Zombie4.prototype.uuenda = function(self){
+	self.kontroll = true;
+    self.reborn = false;
+    self.kasHaavatav = true;
+};
+/*
+function uuenda(zom){
+  alert(zom);
+  zom.kontroll = true;
+  zom.reborn = false;
+  zom.kasHaavatav = true;
+}
+*/
 
 //*****Zombie funktsioonide lopp******//
 

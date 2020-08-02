@@ -1,9 +1,9 @@
-#taust, #tegelane, #zombid,#abi,#status{
+#taust, #tegelane, #zombid,#pold,#status{
 	display: block;
 	margin: 0 auto;
     border: 1px solid black;
 }
-#tegelane,#zombid,#abi,#status{
+#tegelane,#zombid,#pold,#status{
 	margin-top:-502px; 
 }
 
