@@ -8,7 +8,7 @@ var canvas3 = document.getElementById("zombid");
 var zombid_taust= canvas3.getContext('2d');		//vaja zombide tausta muutmiseks (zombied liiguvad siin)
 
 var canvas4 = document.getElementById("pold");
-var pold_taust = canvas4.getContext('2d'); //siin on põld
+var pold_taust = canvas4.getContext('2d'); //siin on p6ld
 
 var canvas5 = document.getElementById("status");
 var status_taust = canvas5.getContext('2d');
@@ -23,8 +23,6 @@ status_taust.fillStyle = "white";
 status_taust.font = "bold 30px Arial";
 status_taust.fillText("Loading...",330,250);
 
-var menu_snd = new Audio("Sounds/menu1.ogg");
-
 var gun1 = new Audio("Sounds/gunfire.ogg");
 var gun2 = new Audio("Sounds/gunfire.ogg");
 var gun3 = new Audio("Sounds/gunfire.ogg");
@@ -32,8 +30,8 @@ var gun4 = new Audio("Sounds/gunfire.ogg");
 var gun5 = new Audio("Sounds/gunfire.ogg");
 
 var reloadSound1 = new Audio("Sounds/reload.ogg");
-var reloadSound2 = new Audio("Sounds/reload.ogg");
 
+var menu_snd = new Audio("Sounds/menu1.ogg");
 var music = new Audio("Sounds/music.ogg");
 music.loop = true;
 
@@ -50,14 +48,13 @@ gun4.addEventListener('canplaythrough',loadKontroll,false);
 gun5.addEventListener('canplaythrough',loadKontroll,false);
 
 reloadSound1.addEventListener('canplaythrough',loadKontroll,false);
-reloadSound2.addEventListener('canplaythrough',loadKontroll,false);
 menu_snd.addEventListener('canplaythrough',loadKontroll,false);
 music.addEventListener('canplaythrough',loadKontroll,false);
 
 var touchable = 'createTouch' in document;
 
-var gameWidth = canvas.width;    // mängu laius
-var gameHeight = canvas.height;	 //mängu kõrgus
+var gameWidth = canvas.width;    // mï¿½ngu laius
+var gameHeight = canvas.height;	 //mï¿½ngu kï¿½rgus
 
 var mitu_kuuli_alles;
 var mitu_kuuli_saab = 8; //palju annab kuuli abi.see hakkab raunides suurenema                   KUULIDE ARV ESIALKSELT!!!
@@ -79,7 +76,7 @@ var imgSprite = new Image(); //pilt
 imgSprite.src = 'Pildid/sprite.png'; //pildi asukoht
 imgSprite.addEventListener('load',loadKontroll,false); //pildi kuular. kui laetud siis init funktsioon
 
-var toimus_asukoha_muutus = false; //
+var toimus_asukoha_muutus = false;
 var hiirekursorX;
 var hiirekursorY; 
 var vastased = new Array(); //siia sisse tulevad zombid
@@ -100,14 +97,14 @@ var mitu_orc = 0;
 var mitu_bossi = 0;
 var mitu_death = 0;
 var tekstid = new Array();
-//*********Põhifunktsioonid**********//
+//*********Pï¿½hifunktsioonid**********//
 
 var kontrollSumma = 0;
 
 
 function loadKontroll(){
 	kontrollSumma++;
-	if(kontrollSumma == 10){
+	if(kontrollSumma == 9){
 		init();
 	}
 }
@@ -159,14 +156,14 @@ function kutsuteine(){
 	},50);
 }
 function init(){
-    menu_snd.play();
+    //menu_snd.play();
     //clearStatusCanvas();
 	joonistaMenu();
     taidaVastased(); //taidab vastaste array
 	taidaHelp(); 
 	document.addEventListener('click',mouseClicked,false); //lisab lehele click kuulari
-    document.addEventListener('keydown',valitudKeyboard,false); //lisab lehele keydown kuulari, ehk kui valitud hiirega mängimine	
-} //init sisse tuleb hiljem mängu menüü. Hetkel kuular, mis ootab mouse klikki, et tööle panne mouseClicked funktsioon
+    document.addEventListener('keydown',valitudKeyboard,false); //lisab lehele keydown kuulari, ehk kui valitud hiirega mï¿½ngimine	
+} //init sisse tuleb hiljem mï¿½ngu menï¿½ï¿½. Hetkel kuular, mis ootab mouse klikki, et tï¿½ï¿½le panne mouseClicked funktsioon
 
 
 function joonistaMenu(){
@@ -239,7 +236,7 @@ function taidaVastased(){
 		vastased[vastased.length] = new Zombie9();	
 	}
 	kasvoib = true;	
-} //vastased array täitmine
+} //vastased array tï¿½itmine
 function taidaHelp(){
 	var hetkel = help.length;
 	if(wave == 4){
@@ -299,13 +296,13 @@ function taidaHelp(){
 	}
 }
 function playGame(){
-    menu_snd.pause();
+    //menu_snd.pause();
     clearStatusCanvas();
 	drawBg(); //joonistab tagatausta 
-	joonP(); //joonistab väikese põlluotsa
+	joonP(); //joonistab vï¿½ikese pï¿½lluotsa
 	music.play();
 	startLoop(); // muudab isPlaying muutuja trueks
-} //joonistatakse tagataust ja kutsutakse välja startLoop funktsioon, lisatakse kuularid
+} //joonistatakse tagataust ja kutsutakse vï¿½lja startLoop funktsioon, lisatakse kuularid
 function hiirelohistus(e){
 	hiirekursorX = e.pageX - canvas6.offsetLeft;
 	hiirekursorY = e.pageY - canvas6.offsetTop;
@@ -484,7 +481,7 @@ function positsioonile(){
 }
 function kasVoibCheck(){
 	if(vastased.length == 0 && kasvoib == true){  //kasvpib muutuja on vajalik, et loop() seda pidevalt ei kutsuks
-		kasvoib = false; //et enam loop() siia ei pääseks
+		kasvoib = false; //et enam loop() siia ei pï¿½ï¿½seks
 		mitu_zombiet++;
 		wave++;
 		var random1 = Math.floor(Math.random()*15000 + 5000);
@@ -500,8 +497,6 @@ function kasVoibCheck(){
 	}
 }
 function randomClock(){
-
-
 }
 function randomHelp(){
     
@@ -511,10 +506,6 @@ function levelCheck(){
 	if(vastased.length == 0){
 		taidaVastased(10);
 	}
-}
-function randomHelp(){
-    
-	help[help.length] = new Moon(mitu_kuuli_saab);
 }
 function levelCheck(){  
 	if(vastased.length == 0){
@@ -539,7 +530,7 @@ function drawAllHelp(){
 function stopLoop(){
     isPlaying = false;	
 }
-//*********Põhifunktsioonide lõpp*********//
+//*********Pï¿½hifunktsioonide lï¿½pp*********//
 
 //********Hero funktsioonid**********//
 
@@ -591,7 +582,7 @@ Hero.prototype.draw = function(){
 			tegelase_canvas.drawImage(imgSprite,6,518,40,this.height,this.drawX,this.drawY,40,this.height);
 			break;
 	}
-	this.kustutamisele(); //vaatab koik kuulid läbi ja kustutab need mis on välja lastud ja märgitud kustutamisele
+	this.kustutamisele(); //vaatab koik kuulid lï¿½bi ja kustutab need mis on vï¿½lja lastud ja mï¿½rgitud kustutamisele
 	this.checkShooting(); //kui space on vajutatud vaatab kuulide mas ja kui leiab vaja kuuli muutab kuuli x kordinaati.
 	this.drawAllBullets(); //vaatab koik kuulid l2bi ja need millel on x kordinaat suurem kui 0 neid hakkab joonistama.	
 	this.checkHelp(); //vaatab kas saadi help paketile pihta
@@ -606,25 +597,17 @@ Hero.prototype.checkHelp = function(){
 		    var xkor = help[i].drawX;
 			var ykor = help[i].drawY;
 			var mitu1 = help[i].mituk;
-			if(kord == 1){
-				reloadSound1.play();
-				kord++;
-			}else{
-			   reloadSound2.play();
-			   kord--;
-			}
-			
+	
+			reloadSound1.play();
 		    tekstid[tekstid.length] = new Tekst(xkor,ykor,mitu1);
 			var mitu = help[i].mituk;
-			 
 			
 			while(mitu >0){
 				ise.bullets.push(new Bullet()); //lisab kuuli
 				mitu--;
 			}
 			mitu_kuuli_alles += help[i].mituk;		
-			help.splice(i,1); //võtab abipaketi 2ra
-			var alpha = 0;		
+			help.splice(i,1); //vï¿½tab abipaketi 2ra	
 		}
 	}
 };
@@ -731,7 +714,7 @@ Hero.prototype.drawAllBullets = function(){
 	}
 };
 
-//*******Hero funktsioonide lõpp
+//*******Hero funktsioonide lï¿½pp
 
 
 //****kuuli funktsioonid**********//
@@ -759,7 +742,7 @@ Bullet.prototype.draw = function(){
 		this.drawY -= 5;
 	}else if(this.suund == 3){ //kui aga alla
 	    this.drawY += 5;
-	}else{  //ei jää midaig muud üle kui vasakule
+	}else{  //ei jï¿½ï¿½ midaig muud ï¿½le kui vasakule
 		this.drawX -= 5;
 	}
 	tegelase_canvas.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
@@ -796,7 +779,7 @@ Bullet.prototype.kasPihtas = function(){
 
 
 
-Bullet.prototype.kustuta = function(){ //lisab kuulile kustutamise märgi
+Bullet.prototype.kustuta = function(){ //lisab kuulile kustutamise mï¿½rgi
 	this.drawX = -20;
 	this.kustutamisele = true;
 };
@@ -1003,7 +986,7 @@ Zombie4.prototype.draw = function(){
 		    var kutsumine = this.uuenda;
 			var self = this;
 			this.kasSees = true;
-			//setTimeout(kutsumine,6000,self);	//exploreri peal ei töödanud
+			//setTimeout(kutsumine,6000,self);	//exploreri peal ei tï¿½ï¿½danud
 			  setTimeout(function(){
 				kutsumine(self);
 			  },6000);	
@@ -1157,7 +1140,7 @@ Zombie8.prototype.draw = function(){
 		    var kutsumine = this.uuenda;
 			var self = this;
 			this.elud =+90;
-			//setTimeout(kutsumine,6000,self);	//exploreri peal ei töödanud
+			//setTimeout(kutsumine,6000,self);	//exploreri peal ei tï¿½ï¿½danud
 			  setTimeout(function(){
 				kutsumine(self);
 			  },10000);	
@@ -1211,7 +1194,7 @@ Zombie9.prototype.draw = function(){
 		    var kutsumine = this.uuenda;
 			var self = this;
 			this.kasSees = true;
-			//setTimeout(kutsumine,6000,self);	//exploreri peal ei töödanud
+			//setTimeout(kutsumine,6000,self);	//exploreri peal ei tï¿½ï¿½danud
 			  setTimeout(function(){
 				kutsumine(self);
 			  },6000);	
@@ -1237,14 +1220,13 @@ Zombie9.prototype.uuenda = function(self){
 
 
 function mouseClicked(e){
-    alert("Sees");
     document.removeEventListener("click",mouseClicked,false);
 	document.removeEventListener("keydown",valitudKeyboard,false);
 	
 	if(touchable){
-	    alert("Töötab");
+	    alert("Tï¿½ï¿½tab");
     }else{
-		canvas6.onmousemove = hiirelohistus; //kuulab mousemove eventi canvas 5 on kõige pealmine
+		canvas6.onmousemove = hiirelohistus; //kuulab mousemove eventi canvas 5 on kï¿½ige pealmine
 		canvas6.onmousedown = muudaspace2;
 		canvas6.onmouseup = muudaspace;
 		playGame();
