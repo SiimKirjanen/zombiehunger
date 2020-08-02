@@ -23,7 +23,7 @@ var gameWidth = canvas.width;    // mängu laius
 var gameHeight = canvas.height;	 //mängu kõrgus
 
 var mitu_kuuli_alles;
-
+var mitu_kuuli_saab = 8; //palju annab kuuli abi.see hakkab raunides suurenema
 
 var v = document.getElementById("info");
 var kuuli_koht = document.getElementById("kuulid");
@@ -43,9 +43,10 @@ var imgSprite = new Image(); //pilt
 imgSprite.src = 'Pildid/sprite.png'; //pildi asukoht
 imgSprite.addEventListener('load',init,false); //pildi kuular. kui laetud siis init funktsioon
 
+
 var vastased = new Array(); //siia sisse tulevad zombid
 
-var mitu_help = 3;
+var mitu_help = 3; //mitu help
 var kasvoib = true;
 var help = new Array(); //help arrays on abistavad asjad m2ngus (kuulid ja ehk kunagi mingi elud jne)
 
@@ -58,12 +59,15 @@ var mitu_priest = 0;
 //*********Põhifunktsioonid**********//
 
 function init(){
+    clearStatusCanvas();
+	joonistaMenu();
     taidaVastased(); //taidab vastaste array
 	taidaHelp(); 
-	document.addEventListener('click',mouseClicked,false); //lisab lehele click kuulari
-	clearStatusCanvas();
-	 
+	document.addEventListener('click',mouseClicked,false); //lisab lehele click kuulari 
 } //init sisse tuleb hiljem mängu menüü. Hetkel kuular, mis ootab mouse klikki, et tööle panne mouseClicked funktsioon
+function joonistaMenu(){
+	tausta_canvas.drawImage(imgSprite,0,600,800,500,0,0,800,500);
+}
 function clearStatusCanvas(){
 	status_taust.clearRect(0,0,800,500);
 }
@@ -97,11 +101,48 @@ function taidaVastased(){
 	
 } //vastased array täitmine
 function taidaHelp(){
+    
 	var hetkel = help.length;
-	
-	for(var i = hetkel; i < mitu_help+hetkel;i++){
-		help[i] = new Moon();
+	if(wave == 4){
+		mitu_kuuli_saab = 15;
 	}
+	if(wave == 6){
+	   mitu_kuuli_saab = 20;
+	}
+	if(wave == 8){
+		mitu_kuuli_saab = 25;
+	}
+	if(wave == 10){
+		mitu_kuuli_saab = 35;
+	}
+	if(wave == 14){
+		mitu_kuuli_saab = 40;
+	}
+	if(wave == 14){
+		mitu_kuuli_saab = 50;
+	}
+	if(wave == 16){
+		mitu_kuuli_saab = 60;
+	}
+	if(wave == 18){
+		mitu_kuuli_saab = 65;
+	}
+	if(wave == 20){
+		mitu_kuuli_saab = 75;
+	}
+	if(wave == 22){
+		mitu_kuuli_saab = 90;
+	}
+	if(wave == 24){
+		mitu_kuuli_saab = 110;
+	}
+	
+	if(wave == 1){
+		for(var i = hetkel; i < mitu_help+hetkel;i++){
+			help[i] = new Moon(mitu_kuuli_saab);
+		}
+	}
+	
 }
 function playGame(){
 	drawBg(); //joonistab tagatausta (roheline muru)
@@ -156,7 +197,14 @@ function kasVoibCheck(){
 		wave++;
 		taidaHelp();
 		setTimeout("taidaVastased(mitu_zombiet)",5000);
+		setTimeout("randomHelp()",6000);
+		setTimeout("randomHelp()",9000);
+		setTimeout("randomHelp()",14000);
 	}
+}
+function randomHelp(){
+    
+	help[help.length] = new Moon(mitu_kuuli_saab);
 }
 function levelCheck(){  
 	if(vastased.length == 0){
@@ -214,7 +262,7 @@ function Hero(){
 	this.isShooting = false;
 	this.bullets = [];
 	this.currentBullet = 0;
-	for(var i = 0; i < 100; i++){
+	for(var i = 0; i < 5; i++){
 		this.bullets[this.bullets.length] = new Bullet(this);	
 	}
 	mitu_kuuli_alles = this.bullets.length;
@@ -252,12 +300,12 @@ Hero.prototype.checkHelp = function(){
 		  help[i].drawY <= this.drawY + this.height){
 		    var a = document.getElementById("info");
 			//a.value = "Pihtsa";
-			var mitu = 25;
+			var mitu = help[i].mituk;
 			while(mitu >0){
 				ise.bullets.push(new Bullet()); //lisab kuuli
 				mitu--;
 			}
-			mitu_kuuli_alles +=25;
+			mitu_kuuli_alles += help[i].mituk;
 			
 			help.splice(i,1); //võtab abipaketi 2ra
 		}
@@ -397,7 +445,7 @@ Bullet.prototype.fire= function(startX, startY){
 
 //*****reload funktsioonid*******//
 
-function Moon(){
+function Moon(mitu_kuuli_annab){
     //var randomnumber=Math.floor(Math.random()*11)
 	this.srcX = 24;
 	this.srcY = 582;
@@ -405,6 +453,7 @@ function Moon(){
 	this.drawY = Math.floor(Math.random()*500);
 	this.width = 22;
 	this.height = 10;
+	this.mituk = mitu_kuuli_annab;
 }
 Moon.prototype.draw = function(){
 	tegelase_canvas.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
