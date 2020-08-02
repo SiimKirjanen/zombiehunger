@@ -86,37 +86,51 @@ function Hero(){
 	this.topY = this.drawY;
 	this.bottomY = this.drawY + this.height;
 	this.vaade = 3;
+	this.noseX = this.drawX + 30;
+	this.noseY = this.drawY + 15;
 	this.isUpKey = false;
 	this.isRightKey = false;
 	this.isDownKey = false;
 	this.isLeftKey = false;	
+	this.isSpacebar = false;
+	this.isShooting = false;
+	this.bullets = [];
+	this.currentBullet = 0;
+	for(var i = 0; i < 5; i++){
+		this.bullets[this.bullets.length] = new Bullet(this);	
+	}
 } //hero class
 
 Hero.prototype.draw = function(){
-	clearTegelaseTaust();
-	this.updateCoors();
-	this.checkDirection();
-	switch(this.vaade){
-	    case 2:
+	clearTegelaseTaust(); //kustutab pidevalt tegelease canvast.
+	this.updateCoors(); // kus asub hero (kui palju katab ta keha maad)
+	this.checkDirection(); //muutab hero x ja y kordinaate, et saaks toimuda liikumine
+	switch(this.vaade){ //kuhu poole hero vaatab
+	    case 2: //paremale
 			tegelase_canvas.drawImage(imgSprite,6,581,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
 			break;
-		case 3:
+		case 3: //alla
 			tegelase_canvas.drawImage(imgSprite,6,516,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
 			break;
-		case 1:
+		case 1: //ylesse
 			tegelase_canvas.drawImage(imgSprite,6,613,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
 			break;
-		case 4:
+		case 4: //vasakule
 			tegelase_canvas.drawImage(imgSprite,6,549,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
 			break;
-	}	
-};//hero classi draw funktsioon, mis joonistab välja kandelast
+	}
+	this.kustutamisele(); //vaatab koik kuulid läbi ja kustutab need mis on välja lastud ja märgitud kustutamisele
+	this.checkShooting(); //kui space on vajutatud vaatab kuulide mas ja kui leiab vaja kuuli muutab kuuli x kordinaati.
+	this.drawAllBullets(); //vaatab koik kuulid l2bi ja need millel on x kordinaat suurem kui 0 neid hakkab joonistama.	
+};
 Hero.prototype.updateCoors = function(){
+    this.noseX = this.drawX + 30; //kust kohast kuul v2lja saata
+	this.noseY = this.drawY + 15;
 	this.leftX = this.drawX; 
 	this.rightX = this.drawX + this.width;
 	this.topY = this.drawY;
 	this.bottomY = this.drawY + this.height;
-};
+}; //
 function clearTegelaseTaust(){
 	tegelase_canvas.clearRect(0,0,800,500);
 }
@@ -134,11 +148,102 @@ Hero.prototype.checkDirection = function(){
 		this.drawX -= this.speed;
 	}
 };
+Hero.prototype.kustutamisele = function(){
+	for(var i = 0; i < this.bullets.length;i++){
+		if(this.bullets[i].kustutamisele === true){
+			this.bullets.splice(i,1);
+		}
+	}
+};
+Hero.prototype.checkShooting = function(){
+	if(this.isSpacebar && !this.isShooting){
+		this.isShooting = true;
+		for(var i =0; i <this.bullets.length;i++){	
+			if(this.bullets[i].kasutuses === false){
+			   this.bullets[i].suund = this.vaade;
+			   if(this.bullets[i].suund == 1){
+				 this.noseX = this.drawX + 15;
+				 this.noseY = this.drawY - 10;
+			   }else if(this.bullets[i].suund == 3){
+				 this.noseX = this.drawX + 15;
+				 this.noseY = this.drawY + 20;
+			   }else if(this.bullets[i].suund == 4){
+			     this.noseX = this.drawX;
+				 this.noseY = this.drawY + 15;
+			   }
+			   this.bullets[i].fire(this.noseX, this.noseY);
+			   return;
+			}
+			
+		}
+		/*
+		if(this.currentBullet < this.bullets.length){
+			this.bullets[this.currentBullet].fire(this.noseX, this.noseY);
+			this.currentBullet++;
+		}
+		/*
+		/*
+		if(this.currentBullet >= this.bullets.length){
+			this.currentBullet = 0;
+		}
+		*/
+	}else if(!this.isSpacebar){
+		this.isShooting = false;
+	}
+};
+Hero.prototype.drawAllBullets = function(){
+	for(var i = 0; i<this.bullets.length;i++){
+		if(this.bullets[i].drawX >=0){ 
+			this.bullets[i].draw();	
+		}	
+	}
+};
 
 //*******Hero funktsioonide lõpp
 
 
+//****kuuli funktsioonid**********//
 
+function Bullet(j){ 
+	this.hero = j;
+	this.srcX = 15;
+	this.srcY = 654;
+	this.drawX = -20;
+	this.drawY = 0;
+	this.width = 10;
+	this.height = 10;
+	this.kasutuses = false;
+	this.kustutamisele = false;
+	this.suund = 2;
+}
+Bullet.prototype.draw = function(){
+    if(this.suund == 2){ //kui kuul on suunaga paremale, siis liidan x kordinaadile +=5
+		this.drawX += 5;
+	}else if(this.suund == 1){ //kui aga ylesse
+		this.drawY -= 5;
+	}else if(this.suund == 3){ //kui aga alla
+	    this.drawY += 5;
+	}else{  //ei jää midaig muud üle kui vasakule
+		this.drawX -= 5;
+	}
+	
+	tegelase_canvas.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
+	if(this.drawX > gameWidth || this.drawY < 0 || this.drawY > gameHeight || this.drawX < 0){
+	    
+	    //this.delete;
+		this.kustuta();
+	}
+};
+Bullet.prototype.kustuta = function(){ //lisab kuulile kustutamise märgi
+	this.drawX = -20;
+	this.kustutamisele = true;
+};
+Bullet.prototype.fire= function(startX, startY){
+	this.drawX = startX; 
+	this.drawY = startY;
+	this.kasutuses = true;
+};
+//****kuuli funktsioonide lopp******//
 
 
 
@@ -172,10 +277,11 @@ function checkKeyDown(e){
   if(keyID === 37 || keyID === 65){ // 38 means left arrow and 87 means a key
     ise.vaade = 4;
     ise.isLeftKey = true;
+	ise.bullets.push(new Bullet());
 	e.preventDefault();
   }
   if(keyID === 32){ // 32 space
-   
+    ise.isSpacebar = true;
 	e.preventDefault();
   }
 }
