@@ -7,14 +7,21 @@ var tegelase_canvas = canvas2.getContext('2d');		//vaja tegelease canvase muutmi
 var canvas3 = document.getElementById("zombid");
 var zombid_taust= canvas3.getContext('2d');		//vaja zombide tausta muutmiseks (zombied liiguvad siin)
 
-var canvas4 = document.getElementById("abi");
-var abi_taust = canvas4.getContext('2d'); //siin on abi asjad. lisakuulid jne...
+//var canvas4 = document.getElementById("abi");
+//var abi_taust = canvas4.getContext('2d'); //siin on abi asjad. lisakuulid jne...
+
+var canvas5 = document.getElementById("status");
+var status_taust = canvas5.getContext('2d');
+
+status_taust.fillStyle = "black";
+status_taust.font = "bold 16px Arial";
+status_taust.fillText("Loading...",300,300);
 
 var gameWidth = canvas.width;    // mängu laius
 var gameHeight = canvas.height;	 //mängu kõrgus
 
 
-
+var v = document.getElementById("info");
 
 var isPlaying = false;	//sellega saab m2ngu loopi kinni panna
 var requestAnimFrame =  window.requestAnimationFrame ||
@@ -31,47 +38,74 @@ var imgSprite = new Image(); //pilt
 imgSprite.src = 'Pildid/sprite.png'; //pildi asukoht
 imgSprite.addEventListener('load',init,false); //pildi kuular. kui laetud siis init funktsioon
 
+var vastased = new Array(); //siia sisse tulevad zombid
+var mitu_zombiet = 5; //mitu zombiet arraysse panna
+
 var help = new Array(new Moon()); //help arrays on abistavad asjad m2ngus (kuulid ja ehk kunagi mingi elud jne)
 //*********Põhifunktsioonid**********//
 
 function init(){
-    
-	document.addEventListener('click',mouseClicked,false);
-	
+    taidaVastased(); //taidab vastaste array
+	document.addEventListener('click',mouseClicked,false); //lisab lehele click kuulari
+	clearStatusCanvas();
 	 
 } //init sisse tuleb hiljem mängu menüü. Hetkel kuular, mis ootab mouse klikki, et tööle panne mouseClicked funktsioon
-
+function clearStatusCanvas(){
+	status_taust.clearRect(0,0,800,500);
+}
+function taidaVastased(){
+    /*
+	for(var i = 0; i < mitu_zombiet;i++){
+		vastased[i] = new Zombie2();
+	}
+	*/
+	vastased[0] = new Zombie();
+	vastased[1] = new Zombie();
+	vastased[2] = new Zombie2();
+	vastased[3] = new Zombie2();
+	vastased[4] = new Zombie3();
+	vastased[5] = new Zombie3();
+} //vastased array täitmine
 
 function playGame(){
-	drawBg();
-	startLoop();
-	//sound.play();
-	document.addEventListener('keydown',checkKeyDown,false);
-	document.addEventListener('keyup',checkKeyUp,false);
+	drawBg(); //joonistab tagatausta (roheline muru)
+	startLoop(); // muudab isPlaying muutuja trueks
+	document.addEventListener('keydown',checkKeyDown,false); //lisab keydown 
+	document.addEventListener('keyup',checkKeyUp,false);//lisab keyup kuularid
 } //joonistatakse tagataust ja kutsutakse välja startLoop funktsioon, lisatakse kuularid
 
 function drawBg(){
-	var srcX = 0;
-	var srcY = 0;
-	var drawX = 800;
-	var drawY = 500;
+	var srcX = 0; //kus kohal spritel x kordinaat
+	var srcY = 0; //kus kohal spritel y kordinaat
+	var drawX = 800; //laius spritel
+	var drawY = 500;//korgus spritel
 	tausta_canvas.drawImage(imgSprite,srcX,srcY,drawX,drawY,srcX,srcY,drawX,drawY); //pildi asukoht spritel(x ja y, pikkus ja kordus) ja 
 	//joonistamise asukoht(x a y, pikkus ja korgus)
 }
 function startLoop(){
     isPlaying = true; 
-    loop();
+    loop(); //m2ng l2heb k2ima
 	
 }
 function loop(){
     if(isPlaying){
-      ise.draw();
-	  drawAllHelp();
-      requestAnimFrame(loop);  
+      ise.draw(); //joonistab farmeri ja kuulid kui on
+	  drawAllHelp(); //joonistab abi asjad
+	  drawAllZombies(); //joonistab zombid
+      requestAnimFrame(loop); //kutsub uuesti loop funktsiooni
     }	
 }//põhi funktsioon, mis joonistab kangelast
+function drawAllZombies(){
+	clearZombies(); //kustutab zombid_tausta
+	for(var i = 0;i<vastased.length;i++){
+		vastased[i].draw(); //kutsub iga zombie draw funktsiooni
+	}
+}
+function clearZombies(){
+	zombid_taust.clearRect(0,0,800,500);
+}
 function drawAllHelp(){
-    clearAbi();
+    //clearAbi();
 	for(var i = 0; i < help.length;i++){
 		help[i].draw();
 	}
@@ -79,9 +113,11 @@ function drawAllHelp(){
 function stopLoop(){
     isPlaying = false;	
 }
+/*
 function clearAbi(){
 	abi_taust.clearRect(0,0,800,500);
 }
+*/
 
 //*********Põhifunktsioonide lõpp*********//
 
@@ -136,15 +172,19 @@ Hero.prototype.draw = function(){
 	this.kustutamisele(); //vaatab koik kuulid läbi ja kustutab need mis on välja lastud ja märgitud kustutamisele
 	this.checkShooting(); //kui space on vajutatud vaatab kuulide mas ja kui leiab vaja kuuli muutab kuuli x kordinaati.
 	this.drawAllBullets(); //vaatab koik kuulid l2bi ja need millel on x kordinaat suurem kui 0 neid hakkab joonistama.	
-	this.checkHelp();
+	this.checkHelp(); //vaatab kas saadi help paketile pihta
 };
 Hero.prototype.checkHelp = function(){
 	for(var i = 0; i < help.length;i++){
-		if(this.drawY < help[i].drawY){
+	   
+	   if(help[i].drawX >= this.drawX &&
+		  help[i].drawX <= this.drawX + this.width && 
+		  help[i].drawY >= this.drawY && 
+		  help[i].drawY <= this.drawY + this.height){
 		    var a = document.getElementById("info");
-			a.value = "Pihtsa";
-			ise.bullets.push(new Bullet());
-			help.splice(i,1);
+			//a.value = "Pihtsa";
+			ise.bullets.push(new Bullet()); //lisab kuuli
+			help.splice(i,1); //võtab abipaketi 2ra
 		}
 	}
 };
@@ -172,11 +212,11 @@ Hero.prototype.checkDirection = function(){
 	if(this.isLeftKey && this.leftX > 0){
 		this.drawX -= this.speed;
 	}
-};
+}; //toimub hero x ja y kordinaadi muutmine
 Hero.prototype.kustutamisele = function(){
 	for(var i = 0; i < this.bullets.length;i++){
 		if(this.bullets[i].kustutamisele === true){
-			this.bullets.splice(i,1);
+			this.bullets.splice(i,1); //eemaldab kuuli salvest =) kui on m22ratud kustutamisele
 		}
 	}
 };
@@ -185,44 +225,32 @@ Hero.prototype.checkShooting = function(){
 		this.isShooting = true;
 		for(var i =0; i <this.bullets.length;i++){	
 			if(this.bullets[i].kasutuses === false){
-			   this.bullets[i].suund = this.vaade;
-			   if(this.bullets[i].suund == 1){
+			   this.bullets[i].suund = this.vaade; //m22rab kuuli suuna kuhu lendab
+			   if(this.bullets[i].suund == 1){ //suund ylesse
 				 this.noseX = this.drawX + 15;
 				 this.noseY = this.drawY - 10;
-			   }else if(this.bullets[i].suund == 2){
+			   }else if(this.bullets[i].suund == 2){ //suund paremale
 			     this.noseX = this.drawX + 32;
 				 this.noseY = this.drawY + 22;
-			   }else if(this.bullets[i].suund == 3){
+			   }else if(this.bullets[i].suund == 3){ //suund alla
 				 this.noseX = this.drawX + 8;
 				 this.noseY = this.drawY + 45;
-			   }else if(this.bullets[i].suund == 4){
+			   }else if(this.bullets[i].suund == 4){ //suund vasakule
 			     this.noseX = this.drawX;
 				 this.noseY = this.drawY + 22;
 			   }
-			   this.bullets[i].fire(this.noseX, this.noseY);
+			   this.bullets[i].fire(this.noseX, this.noseY); //paneb kuuli pyssitoru juurde
 			   return;
 			}
-			
-		}
-		/*
-		if(this.currentBullet < this.bullets.length){
-			this.bullets[this.currentBullet].fire(this.noseX, this.noseY);
-			this.currentBullet++;
-		}
-		/*
-		/*
-		if(this.currentBullet >= this.bullets.length){
-			this.currentBullet = 0;
-		}
-		*/
+		}		
 	}else if(!this.isSpacebar){
 		this.isShooting = false;
 	}
 };
 Hero.prototype.drawAllBullets = function(){
 	for(var i = 0; i<this.bullets.length;i++){
-		if(this.bullets[i].drawX >=0){ 
-			this.bullets[i].draw();	
+		if(this.bullets[i].drawX >=0){ //koik kuulid mille x kordinaat on suurem kui 0 lastakse v2lja
+			this.bullets[i].draw();//laskmine
 		}	
 	}
 };
@@ -236,13 +264,14 @@ function Bullet(j){
 	this.hero = j;
 	this.srcX = 8;
 	this.srcY = 576;
-	this.drawX = -20;
+	this.drawX = -20; //algselt on kuuli x kordinaat -20px
 	this.drawY = 0;
 	this.width = 8;
 	this.height = 8;
 	this.kasutuses = false;
 	this.kustutamisele = false;
 	this.suund = 2;
+	this.damage = 10;
 }
 Bullet.prototype.draw = function(){
     if(this.suund == 2){ //kui kuul on suunaga paremale, siis liidan x kordinaadile +=5
@@ -254,14 +283,31 @@ Bullet.prototype.draw = function(){
 	}else{  //ei jää midaig muud üle kui vasakule
 		this.drawX -= 5;
 	}
-	
 	tegelase_canvas.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
+	this.kasPihtas(); //kas sai zombile pihta
 	if(this.drawX > gameWidth || this.drawY < 0 || this.drawY > gameHeight || this.drawX < 0){
 	    
 	    //this.delete;
 		this.kustuta();
 	}
 };
+
+Bullet.prototype.kasPihtas = function(){
+	for(var i =0; i < vastased.length;i++){
+			if(this.drawX >= vastased[i].drawX && 
+			   this.drawX <=vastased[i].drawX + vastased[i].width &&
+			   this.drawY >=vastased[i].drawY &&
+			   this.drawY <=vastased[i].drawY + vastased[i].height){
+			     vastased[i].elud -= this.damage; //v6tab zombilt elusid
+				 this.kustutamisele = true; //kustutab kuuli
+				 if(vastased[i].elud <=0){ //kui zombil on elus <=0
+					vastased.splice(i,1); //kustutab selel zombie vastaste arrayst
+				 }			 
+			}
+	}
+	
+};
+
 Bullet.prototype.kustuta = function(){ //lisab kuulile kustutamise märgi
 	this.drawX = -20;
 	this.kustutamisele = true;
@@ -277,12 +323,12 @@ Bullet.prototype.fire= function(startX, startY){
 
 function Moon(){
     //var randomnumber=Math.floor(Math.random()*11)
-	this.srcX = 10;
-	this.srcY = 576;
+	this.srcX = 24;
+	this.srcY = 582;
 	this.drawX = Math.floor(Math.random()*800);
-	this.drawY = 50;
-	this.width = 6;
-	this.height = 6;
+	this.drawY = Math.floor(Math.random()*500);
+	this.width = 22;
+	this.height = 10;
 }
 Moon.prototype.draw = function(){
 	tegelase_canvas.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
@@ -290,7 +336,52 @@ Moon.prototype.draw = function(){
 
 
 //*****end of reload funktsioonid*****//
+//*****Zombie funktsioonid*******//
+function Zombie(){
+    this.drawX = Math.floor(Math.random()*300+800);
+	this.drawY = Math.floor(Math.random()*500);
+	this.srcX = 295;
+	this.srcY = 518;
+	this.width = 40;
+	this.height = 60;
+	this.speed = 0.5;
+	this.elud = 20;
+}
+Zombie.prototype.draw = function(){
+	this.drawX -= this.speed;
+	zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
+};
+function Zombie2(){
+	this.drawX = Math.floor(Math.random()*300+800);
+	this.drawY = Math.floor(Math.random()*500);
+	this.srcX = 237;
+	this.srcY = 518;
+	this.width = 50;
+	this.height = 60;
+	this.speed = 0.8;
+	this.elud = 20;
+}
+Zombie2.prototype.draw = function(){
+	this.drawX -= this.speed;
+	zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
+};
+function Zombie3(){
+	this.drawX = Math.floor(Math.random()*300+800);
+	this.drawY = Math.floor(Math.random()*500);
+	this.srcX = 171;
+	this.srcY = 518;
+	this.width = 50;
+	this.height = 80;
+	this.speed = 0.4;
+	this.elud = 60;
+}
+Zombie3.prototype.draw = function(){
+	this.drawX -= this.speed;
+	zombid_taust.drawImage(imgSprite,this.srcX,this.srcY,this.width,this.height,this.drawX,this.drawY,this.width,this.height);
+};
 
+
+//*****Zombie funktsioonide lopp******//
 
 //*********Event funktsioonid**********//
 

@@ -1,11 +1,13 @@
-#taust, #tegelane, #zombid{
+#taust, #tegelane, #zombid,#abi,#status{
 	display: block;
 	margin: 0 auto;
     border: 1px solid black;
 }
-#tegelane,#zombid,#abi{
+#tegelane,#zombid,#abi,#status{
 	margin-top:-502px; 
 }
+
+
 
 
 
