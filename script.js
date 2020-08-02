@@ -39,11 +39,8 @@ var music2 = new Audio("Sounds/music2.ogg");
 music2.loop = true;
 
 gun1.addEventListener('canplaythrough',loadKontroll,false);
-
 gun2.addEventListener('canplaythrough',loadKontroll,false);
-
 gun3.addEventListener('canplaythrough',loadKontroll,false);
-
 gun4.addEventListener('canplaythrough',loadKontroll,false);
 gun5.addEventListener('canplaythrough',loadKontroll,false);
 
@@ -71,10 +68,10 @@ var requestAnimFrame =  window.requestAnimationFrame ||
                             window.setTimeout(callback, 1000 / 60);
                         }; 
 var abicounter = 1;
-var ise = new Hero(); //classi Hero uus objekt ehk siis kangelane, kes ringi liigub
-var imgSprite = new Image(); //pilt
-imgSprite.src = 'Pildid/sprite.png'; //pildi asukoht
-imgSprite.addEventListener('load',loadKontroll,false); //pildi kuular. kui laetud siis init funktsioon
+var ise = new Hero(); 
+var imgSprite = new Image(); 
+imgSprite.src = 'Pildid/sprite.png';
+imgSprite.addEventListener('load',loadKontroll,false);
 
 var toimus_asukoha_muutus = false;
 var hiirekursorX;
@@ -105,7 +102,7 @@ var kontrollSumma = 0;
 function loadKontroll(){
 	kontrollSumma++;
 	if(kontrollSumma == 9){
-		init();
+		assetsLoaded();
 	}
 }
 
@@ -155,16 +152,30 @@ function kutsuteine(){
 		}
 	},50);
 }
-function init(){
-    //menu_snd.play();
-    //clearStatusCanvas();
+function assetsLoaded(){
+	clearStatusCanvas();
+	status_taust.fillStyle = "black";
+	status_taust.fillRect(0,0,800,550);
+	status_taust.fillStyle = "white";
+	status_taust.font = "bold 30px Arial";
+	status_taust.fillText("Press any key to continue",220,250);
+	
+	document.addEventListener('keydown', assetsLoadedClickHandler, false);
+}
+
+function assetsLoadedClickHandler() {
+	document.removeEventListener("click", assetsLoadedClickHandler,false);
+	init();
+}
+
+function init() {
+	menu_snd.play();
 	joonistaMenu();
     taidaVastased(); //taidab vastaste array
 	taidaHelp(); 
 	document.addEventListener('click',mouseClicked,false); //lisab lehele click kuulari
     document.addEventListener('keydown',valitudKeyboard,false); //lisab lehele keydown kuulari, ehk kui valitud hiirega m�ngimine	
-} //init sisse tuleb hiljem m�ngu men��. Hetkel kuular, mis ootab mouse klikki, et t��le panne mouseClicked funktsioon
-
+}
 
 function joonistaMenu(){
 	status_taust.drawImage(imgSprite,0,600,800,500,0,20,800,500);
@@ -296,7 +307,7 @@ function taidaHelp(){
 	}
 }
 function playGame(){
-    //menu_snd.pause();
+    menu_snd.pause();
     clearStatusCanvas();
 	drawBg(); //joonistab tagatausta 
 	joonP(); //joonistab v�ikese p�lluotsa
