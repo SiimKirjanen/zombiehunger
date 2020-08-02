@@ -1,7 +1,7 @@
 zomb1 = 3 
 zomb2 = 2
 zomb3 = 8
-zomb4 = 10
+zomb4 = 8
 
 
 wave 1 = 15  24 + 5 = 29    				=   14
